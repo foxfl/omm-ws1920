@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Twitch MIMUC</title>
+    <style>
+      canvas {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h2>Anchor:</h2>
+      <button id="start-stream">start streaming</button>
+      <button id="stop-stream">stop streaming</button>
+      <p id="message">
+        Streaming: OFF
+      </p>
+      <video id="anchor" autoplay></video>
+      <audio id="anchor-audio"></audio>
+
+      <canvas id="capture" width="640" height="480"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
+    <script>
+      if (!navigator.mediaDevices) {
+        document.body.textContent = "Cannot use media devices.";
+      }
+      const socket = io();
+      // use MediaDevices API
+      // docs: https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+      let video = document.getElementById("anchor");
+      let microphone_stream = null;
+      let AudioContext = window.AudioContext || window.webkitAudioContext;
+      let recorder = null;
+      let buffer = null;
+
+      function recorderProcess(e) {
+        buffer = e.inputBuffer.getChannelData(0);
+      }
+
+      navigator.mediaDevices
+        .getUserMedia({ audio: true, video: true })
+        .then((stream) => {
+          video.srcObject = stream;
+          video.onloadedmetadata = function(e) {
+            video.play();
+            video.muted = true;
+          };
+          let context = new AudioContext();
+          let audioInput = context.createMediaStreamSource(stream);
+          let bufferSize = 2048;
+          // create a javascript node
+          recorder = context.createScriptProcessor(bufferSize, 1, 1);
+          // specify the processing function
+          // connect stream to our recorder
+          audioInput.connect(recorder);
+          // connect our recorder to the previous destination
+          recorder.connect(context.destination);
+        })
+        .catch((error) => {
+          document.body.textContent =
+            "Could not access the camera. Error: " + error.name;
+        });
+
+      // button events
+      document
+        .getElementById("start-stream")
+        .addEventListener("click", () => startStream());
+      document
+        .getElementById("stop-stream")
+        .addEventListener("click", () => stopStream());
+
+      // render processing
+      let canvas = document.getElementById("capture");
+      let context = canvas.getContext("2d");
+      let stream = null;
+      const startStream = () => {
+        // stream object has created, nothing to do.
+        if (stream) {
+          return;
+        }
+        document.getElementById("message").innerText = "Streaming: ON";
+        // use canvas to render image data and send to server
+        stream = setInterval(() => {
+          context.drawImage(video, 0, 0, 640, 480);
+          recorder.onaudioprocess = recorderProcess;
+
+          socket.emit("streaming", canvas.toDataURL("image/webp"), buffer);
+        }, 40); // 25fps = 1s / 40ms
+      };
+      const stopStream = () => {
+        // no stream object, nothing to do.
+        if (!stream) {
+          return;
+        }
+        recorder.onaudioprocess = null;
+        document.getElementById("message").innerText = "Streaming: OFF";
+        // clear render interval
+        clearInterval(stream);
+        stream = null;
+      };
+    </script>
+  </body>
+</html>

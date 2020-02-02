@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <title>Assignment 01</title>
+    <meta name="description" content="Assignment 01" />
+    <meta name="author" content="Florian Fuchs" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+
+    <link rel="stylesheet" href="index.css" />
+  </head>
+
+  <body>
+    <script src="index.js"></script>
+    <div class="container">
+      <button id="btn_prev" class="btn" onclick="prevImageCarousell()">
+        <i class="fa fa-chevron-left"></i>
+      </button>
+      <div id="images" class="image-container">
+        <img
+          class="active"
+          src="https://picsum.photos/id/0/500/600?grayscale"
+        />
+        <img src="https://picsum.photos/id/1/500/600?grayscale" />
+        <img src="https://picsum.photos/id/2/500/600?grayscale" />
+        <img src="https://picsum.photos/id/3/500/600?grayscale" />
+        <img src="https://picsum.photos/id/4/500/600?grayscale" />
+        <img src="https://picsum.photos/id/5/500/600?grayscale" />
+      </div>
+      <button id="btn_next" class="btn" onclick="nextImageCarousell()">
+        <i class="fa fa-chevron-right"></i>
+      </button>
+    </div>
+  </body>
+</html>

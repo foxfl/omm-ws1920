@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MMN Slide Show</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <link rel="stylesheet" href="slide-show.css" />
+<body>
+    <script src="slide-show.js"></script>
+
+<div id="container">
+    <button id="backButton">❮</button>
+    <div id="slideShowImages">
+        <div class="imageNumber"></div>
+        <!-- some default images -->
+        <p>Loading, please wait...</p>
+    </div>
+    <button id="nextButton">❯</button>
+</div>
+<div class="form-container">
+    <form id="captionForm" action="javascript:void(0);">
+        <label for="caption_top">Caption Top</label>
+        <input name="caption_top" type="text" role="text" required />
+        <label for="caption_bottom">Caption Bottom</label>
+        <input name="caption_bottom" type="text" role="text" />
+        <input type="submit" value="Submit">
+    </form>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Twitch MIMUC</title>
+    <style></style>
+  </head>
+  <body>
+    <div>
+      <h2>Viewer:</h2>
+      <button>Watch</button>
+      <canvas id="viewer" width="640" height="480"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
+    <script>
+      const context = document.getElementById("viewer").getContext("2d");
+      const socket = io();
+      let AudioContext = window.AudioContext || window.webkitAudioContext;
+      let image = new Image();
+      const audioContext = new AudioContext();
+      let AudioStart = 0;
+      let source;
+      let frameCount = 2048;
+
+      // Get an AudioBufferSourceNode.
+      // This is the AudioNode to use when we want to play an AudioBuffer
+      // set the buffer in the AudioBufferSourceNode
+      // connect the AudioBufferSourceNode to the
+      // destination so we can hear the sound
+
+      document.querySelector("button").addEventListener("click", function() {
+        audioContext.resume().then(() => {
+          console.log("Playback resumed successfully");
+          document.querySelector("button").hidden = true;
+        });
+      });
+      image.onload = () => {
+        context.drawImage(image, 0, 0);
+      };
+      // subscribe viewing and receive data pushed from server
+      socket.on("viewing", (data, audio) => {
+        image.src = data;
+        source = audioContext.createBufferSource();
+        const audioData = new Float32Array(audio);
+        let frameCount = audioData.length > 0 ? audioData.length : 2048;
+        let buffer = audioContext.createBuffer(
+          1,
+          frameCount,
+          audioContext.sampleRate
+        );
+
+        let nowBuffering = buffer.getChannelData(0);
+
+        for (var i = 0; i < frameCount; i++) {
+          nowBuffering[i] = audio[i];
+        }
+
+        source.connect(audioContext.destination);
+        // start the source playing
+        source.buffer = buffer;
+        source.start(AudioStart);
+        AudioStart += buffer.duration;
+      });
+    </script>
+  </body>
+</html>
